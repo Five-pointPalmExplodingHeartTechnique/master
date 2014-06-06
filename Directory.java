@@ -7,6 +7,7 @@ public class Directory {
     private int fsize[];        // each element stores a different file size.
     private char fnames[][];    // each element stores a different file name.
 
+// -----------------------------------------------------------------------------
     public Directory( int maxInumber ) { // directory constructor
         fsizes = new int[maxInumber];     // maxInumber = max files
         for ( int i = 0; i < maxInumber; i++ ) 
@@ -19,11 +20,13 @@ public class Directory {
         root.getChars( 0, fsizes[0], fnames[0], 0 ); // fnames[0] includes "/"
     }
 
+// -----------------------------------------------------------------------------
     public int bytes2directory( byte data[] ) {
         // assumes data[] received directory information from disk
         // initializes the Directory instance with this data[]
     }
 
+// -----------------------------------------------------------------------------
     public byte[] directory2bytes( ) {
         // converts and return Directory information into a plain byte array
         // this byte array will be written back to disk
@@ -31,11 +34,13 @@ public class Directory {
         // into bytes.
     }
 
+// -----------------------------------------------------------------------------
     public short ialloc( String filename ) {
         // filename is the one of a file to be created.
         // allocates a new inode number for this filename
     }
 
+// -----------------------------------------------------------------------------
     public boolean ifree( short iNumber ) {
         // deallocates this inumber (inode number)
         // the corresponding file will be deleted.
