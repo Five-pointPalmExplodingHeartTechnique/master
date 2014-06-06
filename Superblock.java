@@ -14,7 +14,7 @@ public class Superblock {
 		totalInodes = SysLib.bytes2int( superblock, 4 );
 		freeList = SysLib.bytes2int( superblock, 8 );
 
-	    if ( totalBlocks == diskSize && inodeBlocks > 0 && freeList >= 2) {
+	    if ( totalBlocks == diskSize && totalInodes > 0 && freeList >= 2) {
             // disk contents are valid
             return;
         }
@@ -37,7 +37,7 @@ public class Superblock {
         for(int i = 0; i < totalInodes; i++) {
             blankInode = new Inode();
             blankInode.flag = 0;
-            blankInode.toDisk(i);
+            blankInode.toDisk((short)i);
         }
 
         //inodes are 32 bytes
