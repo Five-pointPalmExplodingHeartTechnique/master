@@ -46,6 +46,7 @@ public class Directory {
         // the corresponding file will be deleted.
     }
 
+// -----------------------------------------------------------------------------
     public short namei( String filename ) {
         // returns the inumber corresponding to this filename
     }
