@@ -43,14 +43,19 @@ public class Inode {
     }
 
 // -----------------------------------------------------------------------------
-    void toDisk( short iNumber ) {                // save to disk as the i-th inode
-        int offset = 0;
-        byte[] iNode = new byte[iNodeSize];
+// toDisk
+// Saves to the disk as the i-th inode
+    public void toDisk( short iNumber ) {
 
-        SysLib.int2bytes( length, iNode,  offset ); // int2bytes( int i, byte[] b, int offset )
+        byte[] iNode = new byte[iNodeSize];
+        int offset = 0;
+
+        // int2bytes( int i, byte[] b, int offset )
+        SysLib.int2bytes( length, iNode,  offset );
         offset += 4;
 
-        SysLib.short2bytes( count, iNode, offset ); // short2bytes( short s, byte[] b, int offset )
+        // short2bytes( short s, byte[] b, int offset )
+        SysLib.short2bytes( count, iNode, offset );
         offset += 2;
 
         SysLib.short2bytes( flag, iNode, offset );
@@ -63,22 +68,22 @@ public class Inode {
     }
 
 // -----------------------------------------------------------------------------
-    short getIndexBlockNumber( ) {
+    public short getIndexBlockNumber( ) {
         return 0;
     }
 
 // -----------------------------------------------------------------------------
-    boolean setIndexBlock( short getIndexBlockNumber ) {
+    public boolean setIndexBlock( short getIndexBlockNumber ) {
         return true;
     }
 
 // -----------------------------------------------------------------------------
-    short findTargetBlock( ) {
+    public short findTargetBlock( ) {
         return indirect;
     }
 
 // -----------------------------------------------------------------------------
-    short findTargetBlock( int offset ) {
+    public short findTargetBlock( int offset ) {
         return 0;
     }
 
