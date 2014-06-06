@@ -50,20 +50,38 @@ public class Inode {
         byte[] iNode = new byte[iNodeSize];
         int offset = 0;
 
-        // int2bytes( int i, byte[] b, int offset )
+
+        // Length - int2bytes( int i, byte[] b, int offset )
         SysLib.int2bytes( length, iNode,  offset );
         offset += 4;
 
-        // short2bytes( short s, byte[] b, int offset )
+        // Count - short2bytes( short s, byte[] b, int offset )
         SysLib.short2bytes( count, iNode, offset );
         offset += 2;
 
+        // Flag - short2bytes( short s, byte[] b, int offset )
         SysLib.short2bytes( flag, iNode, offset );
         offset += 2;
 
-        // for (int i = 0; i < directSize; i++ ) {
-            
-        // }
+        // Direct - short2bytes( short s, byte[] b, int offset )
+        for (int i = 0; i < directSize; i++ ) {
+            SysLib.short2bytes( direct[i], iNode, offset );  
+            offset += 2; 
+        }
+
+        // Indirect - short2bytes( short s, byte[] b, int offset )
+        SysLib.short2bytes( indirect, iNode, offset );  
+        offset += 2;
+
+
+        int blockNumber = 1 + iNumber / 16
+        byte[] data = new byte[Disk.blockSize];
+        SysLib.rawread( blockNumber, data );
+        offset = ( iNumber % 16 ) * 32;
+
+        System.arraycopy( iNode, 0, data, offset, iNodeSize );
+        SysLib.rawwrite( blockNumber, data );
+
 
     }
 
