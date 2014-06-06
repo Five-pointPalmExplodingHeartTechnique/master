@@ -115,8 +115,11 @@ public class Superblock {
             temp = new byte[Disk.blockSize];
             SysLib.rawread(current,temp);
             next = SysLib.bytes2int(temp,0);
+            //If block has -1, it was the previous last block, this block now points to the returned block
             if(next == -1) {
+                //overwrite the number the block is pointing to with the returned block number
                 SysLib.int2bytes(blockNumber,temp,0);
+                //write into the current block
                 SysLib.rawwrite(current,temp);
                 break;
             } else {
