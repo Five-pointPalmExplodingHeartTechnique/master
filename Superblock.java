@@ -1,3 +1,4 @@
+import java.util.Arrays;
 
 public class Superblock {
 
@@ -14,7 +15,7 @@ public class Superblock {
 		totalInodes = SysLib.bytes2int( superblock, 4 );
 		freeList = SysLib.bytes2int( superblock, 8 );
 
-	    if ( totalBlocks == diskSize && inodeBlocks > 0 && freeList >= 2) {
+	    if ( totalBlocks == diskSize && totalInodes > 0 && freeList >= 2) {
             // disk contents are valid
             return;
         }
@@ -37,7 +38,7 @@ public class Superblock {
         for(int i = 0; i < totalInodes; i++) {
             blankInode = new Inode();
             blankInode.flag = 0;
-            blankInode.toDisk(i);
+            blankInode.toDisk((short)i);
         }
 
         //inodes are 32 bytes
@@ -48,12 +49,20 @@ public class Superblock {
         //example#2 48 blocks should start at block 4 as explained in FAQ
         freeList = (totalInodes*32/512)+1;
 
-        //Create array of 0 data to write to free blocks
-        byte[] zeroArray = new byte[Disk.blockSize];
-        //write 0 byte data to all free blocks
-        for(int i = freeList; i < totalBlocks; i++) {
+        //byte array to write to each block
+        byte[] zeroArray;
+        //each block except the last one stores a value to the next block
+        for(int i = freeList; i < totalBlocks-1; i++) {
+            //In order to keep a queue, we must implement pointer in data
+            zeroArray = new byte[Disk.blockSize];
+            SysLib.int2bytes(i+1,zeroArray,0);
             SysLib.rawwrite(i,zeroArray);
         }
+        //last block in queue stores -1
+        zeroArray = new byte[Disk.blockSize];
+        SysLib.int2bytes(-1,zeroArray,0);
+        SysLib.rawwrite(totalBlocks-1,zeroArray);
+
         sync();
 	}
 
@@ -71,11 +80,52 @@ public class Superblock {
 
 	public int getFreeBlock() {
 		// Dequeue the top block from the free list.
-		return 0;
+        //get the free list block
+        int toReturn = freeList;
+        if(toReturn != -1) {
+            //make array to get the next block from the free block
+            byte[] temp = new byte[Disk.blockSize];
+            //read from freblock
+            SysLib.rawread(freeList,temp);
+            //set the freeList from the current free block
+            freeList = SysLib.bytes2int(temp,0);
+            //fill the array to make it blank and write to the block to be returned
+            Arrays.fill(temp, (byte) 0);
+            SysLib.rawwrite(toReturn,temp);
+        }
+		return toReturn;
 	}
 
 	public boolean returnBlock( int blockNumber ) {
 		// Enqueue a given block to the end of the free list.
+        // set the parameter block to point to -1 and write to the parameter block
+        byte[] temp;
+        temp = new byte[Disk.blockSize];
+        SysLib.int2bytes(-1,temp,0);
+        SysLib.rawwrite(blockNumber,temp);
+        //If there were no free blocks, there is now a free block
+        if(freeList == -1) {
+            freeList = blockNumber;
+            return true;
+        }
+        //traverse the freeblocks until we get to the end which is the block with -1
+        int current = freeList; //get the current index
+        int next;
+        while(current != -1) {
+            temp = new byte[Disk.blockSize];
+            SysLib.rawread(current,temp);
+            next = SysLib.bytes2int(temp,0);
+            //If block has -1, it was the previous last block, this block now points to the returned block
+            if(next == -1) {
+                //overwrite the number the block is pointing to with the returned block number
+                SysLib.int2bytes(blockNumber,temp,0);
+                //write into the current block
+                SysLib.rawwrite(current,temp);
+                break;
+            } else {
+                current = next;
+            }
+        }
 		return true;
 	}
 }
