@@ -11,17 +11,23 @@ public class Inode {
     public short indirect;                         // a indirect pointer
 
 // -----------------------------------------------------------------------------
-    Inode( ) {                                     // a default constructor
+// Default Constructor 
+    Inode( ) {
         length = 0;
         count = 0;
         flag = 1;
-        for ( int i = 0; i < directSize; i++ )
+
+        for ( int i = 0; i < directSize; i++ ) {
             direct[i] = -1;
+        }
+
         indirect = -1;
     }
 // -----------------------------------------------------------------------------
     Inode( short iNumber ) {                       // retrieving inode from disk
         // design it by yourself.
+
+
     }
 
 // -----------------------------------------------------------------------------
