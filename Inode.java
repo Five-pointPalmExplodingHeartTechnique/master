@@ -127,11 +127,6 @@ public class Inode {
     }
 
 // -----------------------------------------------------------------------------
-    public short findTargetBlock( ) {
-        return indirect;
-    }
-
-// -----------------------------------------------------------------------------
     public short findTargetBlock( int offset ) {
 
         if (offset < directSize) {
