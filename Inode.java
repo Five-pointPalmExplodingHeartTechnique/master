@@ -4,9 +4,6 @@ public class Inode {
     private final static int iNodeSize  = 32;      // fix to 32 bytes
     private final static int directSize = 11;      // # direct pointers
 
-    private final int shortbyte = 2;
-    private final int intbyte = 2;
-
     public int length;                             // file size in bytes
     public short count;                            // # file-table entries pointing to this
     public short flag;                             // 0 = unused, 1 = used, ...
@@ -102,21 +99,30 @@ public class Inode {
 
 // -----------------------------------------------------------------------------
     public short getIndexBlockNumber( ) {
-        return 0;
+        return indirect;
     }
 
 // -----------------------------------------------------------------------------
+
+    // superblock.getFreeBlock()
     public boolean setIndexBlock( short getIndexBlockNumber ) {
 
-        for ( int i = 0; i < directSize; i++ ) {
-            // Checks direct if it is -1
-            if ( direct[i] == -1 ) {
-                return false;
-            }
-        }
 
-        // Check indirect
+// ===================================================
+// Testing direct and indirect
+// ===================================================
+        // for ( int i = 0; i < directSize; i++ ) {
+        //     // Checks direct if it is -1
+        //     if ( direct[i] == -1 ) {
+        //         return false;
+        //     }
+        // }
 
+        // if (indirect != -1) {
+        //     return false;
+        // }
+
+        indirect = getIndexBlockNumber;
         return true;
     }
 
@@ -127,7 +133,19 @@ public class Inode {
 
 // -----------------------------------------------------------------------------
     public short findTargetBlock( int offset ) {
-        return 0;
+
+        if (offset < directSize) {
+            return direct[offset];
+        }
+
+        if ( indirect < 0 ) {
+            return -1;
+        }
+
+        byte[] b = new byte[Disk.blockSize];
+        SysLib.rawread( indirect, b );
+
+        return SysLib.bytes2short( b, offset - directSize );
     }
 
 
