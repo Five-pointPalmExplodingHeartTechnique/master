@@ -7,6 +7,7 @@ public class SuperBlock {
 	public int totalInodes; // the number of inodes
 	public int freeList;    // the block number of the free list's head
 
+    // Default constructor
 	public SuperBlock(int diskSize) {
 		// read the superblock from disk
 		byte[] superblock = new byte[Disk.blockSize];
@@ -26,10 +27,12 @@ public class SuperBlock {
 		}
 	}
 
+    //Format no parameter calls format with default blocks
     public void format() {
         format(defaultInodeBlocks);
     }
 
+    //Format creates a clean superblock
 	public void format( int inodeBlockSize ) {
         totalInodes = inodeBlockSize;
         //INode reference
@@ -66,6 +69,7 @@ public class SuperBlock {
         sync();
 	}
 
+    //Sync the Superblock
 	public void sync() {
 		// Write back totalBlocks, inodeBlocks, and freeList to disk.
         //Disk stores bytes so we need a byte array
@@ -78,6 +82,7 @@ public class SuperBlock {
         SysLib.rawwrite(0,toDisk);
 	}
 
+    //get next available block from top of the list
 	public int getFreeBlock() {
 		// Dequeue the top block from the free list.
         //get the free list block
@@ -96,6 +101,8 @@ public class SuperBlock {
 		return toReturn;
 	}
 
+    //Gets block that is freed and placed at the end
+    //Since we can't add data structures, iternate through all free blocks until the last one is found with -1
 	public boolean returnBlock( int blockNumber ) {
 		// Enqueue a given block to the end of the free list.
         // set the parameter block to point to -1 and write to the parameter block
