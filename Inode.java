@@ -97,12 +97,9 @@ public class Inode {
         SysLib.rawwrite( blockNumber, data );
     }
 
-// -----------------------------------------------------------------------------
     public short getIndexBlockNumber( ) {
         return indirect;
     }
-
-// -----------------------------------------------------------------------------
 
     // superblock.getFreeBlock()
     public boolean setIndexBlock( short getIndexBlockNumber ) {
@@ -126,7 +123,6 @@ public class Inode {
         return true;
     }
 
-// -----------------------------------------------------------------------------
     public short findTargetBlock( int offset ) {
 
         if (offset < directSize) {
