@@ -21,14 +21,14 @@ public class Directory {
     }
 
 // -----------------------------------------------------------------------------
-    public int bytes2directory( byte data[] ) {
+    public void bytes2directory( byte data[] ) {
         // assumes data[] received directory information from disk
         // initializes the Directory instance with this data[]
         // return -1 if invalid data, 0 otherwise
 
         // check for invalid data
         if ( ( data == null ) || ( data.length == 0 ) )
-            return -1;
+            return ;
 
         // initialize file sizes
         for ( int i = 0; i < fsizes.length; i++ ) {
@@ -47,8 +47,6 @@ public class Directory {
             // copy file name to the corresponding array index
             currentFileName.getChars( 0, fsizes[i], fnames[i], 0 );
         }
-
-        return 0;
     }
 
 // -----------------------------------------------------------------------------
