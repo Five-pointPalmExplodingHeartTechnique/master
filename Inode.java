@@ -124,9 +124,9 @@ public class Inode {
     //}
 
     public short findTargetBlock( int offset ) {
-
-        if (offset < directSize) {
-            return direct[offset];
+        int targetBlock = offset / Disk.blockSize;
+        if (targetBlock  < directSize) {
+            return direct[targetBlock ];
         }
 
         if ( indirect < 0 ) {
@@ -136,7 +136,7 @@ public class Inode {
         byte[] b = new byte[Disk.blockSize];
         SysLib.rawread( indirect, b );
 
-        return SysLib.bytes2short( b, offset - directSize );
+        return SysLib.bytes2short( b, (targetBlock  - directSize) * 2 );
     }
 
     // used to check SuperBlock.getFreeBlock( ) for index block
