@@ -98,7 +98,7 @@ public class FileSystem {
         int fileSize = fsize(ftEnt);
 
         synchronized (ftEnt) {
-            while(ftEnt.seekPtr < fileSize) {
+            while(bytesRead < fileSize) {
                 //Get block to read from
                 int targetBlock = ftEnt.inode.findTargetBlock(ftEnt.seekPtr);
                 //If block isn't positive, break from loop
