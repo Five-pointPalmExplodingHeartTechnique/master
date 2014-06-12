@@ -1,4 +1,10 @@
-
+/**
+ * Directory.java
+ * Provide a directory structure that keep track of the file sizes and 
+ * file names.
+ *
+ * @since    6/5/2014 
+ */
 public class Directory {
 
     private static int maxChars = 30; // max characters of each file name
@@ -7,7 +13,13 @@ public class Directory {
     private int fsizes[];        // each element stores a different file size.
     private char fnames[][];    // each element stores a different file name.
 
-// -----------------------------------------------------------------------------
+    /**
+     * constructor
+     * initiate the directory structure
+     * 
+     * @param maxInumber the number of inodes
+     * 
+     */
     public Directory( int maxInumber ) { // directory constructor
         fsizes = new int[maxInumber];     // maxInumber = max files
         for ( int i = 0; i < maxInumber; i++ ) 
@@ -20,7 +32,13 @@ public class Directory {
         root.getChars( 0, fsizes[0], fnames[0], 0 ); // fnames[0] includes "/"
     }
 
-// -----------------------------------------------------------------------------
+    /**
+     * bytes2directory
+     * set up directory according to information given
+     * 
+     * @param data the bytes array from disk
+     * 
+     */
     public void bytes2directory( byte data[] ) {
         // assumes data[] received directory information from disk
         // initializes the Directory instance with this data[]
@@ -49,7 +67,11 @@ public class Directory {
         }
     }
 
-// -----------------------------------------------------------------------------
+    /**
+     * directory2bytes
+     * convert directory information to byte array
+     * 
+     */
     public byte[] directory2bytes( ) {
         // converts and return Directory information into a plain byte array
         // this byte array will be written back to disk
@@ -84,7 +106,13 @@ public class Directory {
         return data; // return the plain byte array
     }
 
-// -----------------------------------------------------------------------------
+    /**
+     * ialloc
+     * allocation a new inode number for the given filename
+     * 
+     * @param filename the file to allocate the inode
+     * 
+     */
     public short ialloc( String filename ) {
         // filename is the one of a file to be created.
         // allocates a new inode number for this filename
@@ -112,7 +140,13 @@ public class Directory {
         return -1; // unable to allocate
     }
 
-// -----------------------------------------------------------------------------
+    /**
+     * ifree
+     * deallocate the inode number 
+     * 
+     * @param iNumber the file to delete
+     * 
+     */
     public boolean ifree( short iNumber ) {
         // deallocates this inumber (inode number)
         // the corresponding file will be deleted.
@@ -127,7 +161,13 @@ public class Directory {
         return true;
     }
 
-// -----------------------------------------------------------------------------
+    /**
+     * namei
+     * get the inode number of a give file 
+     * 
+     * @param filename the filename to get the inumber
+     * 
+     */
     public short namei( String filename ) {
         // returns the inumber corresponding to this filename
         // return -1 if invalid data or not found
