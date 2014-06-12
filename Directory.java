@@ -1,7 +1,8 @@
 /**
  * Directory.java
  * Provide a directory structure that keep track of the file sizes and 
- * file names.
+ * file names.  REceives a maximum number of files to be created and keeps
+ * track of which inode numbers are in use.  Covers witeback to Disk on close
  *
  * @since    6/5/2014 
  */
