@@ -29,7 +29,7 @@ public class Inode {
 // Retrieving inode from disk
     Inode( short iNumber ) {
         
-        int blockNumber = 1 + iNumber / 16
+        int blockNumber = 1 + iNumber / 16;
         byte[] data = new byte[Disk.blockSize];
         SysLib.rawread( blockNumber, data );
         int offset = ( iNumber % 16 ) * 32;
@@ -88,7 +88,7 @@ public class Inode {
         SysLib.short2bytes( indirect, iNode, offset );  
         offset += 2;
 
-        int blockNumber = 1 + iNumber / 16
+        int blockNumber = 1 + iNumber / 16;
         byte[] data = new byte[Disk.blockSize];
         SysLib.rawread( blockNumber, data );
         offset = ( iNumber % 16 ) * 32;
@@ -102,7 +102,7 @@ public class Inode {
     }
 
     // superblock.getFreeBlock()
-    public boolean setIndexBlock( short getIndexBlockNumber ) {
+    //public boolean setIndexBlock( short getIndexBlockNumber ) {
 
 
 // ===================================================
@@ -119,9 +119,9 @@ public class Inode {
         //     return false;
         // }
 
-        indirect = getIndexBlockNumber;
-        return true;
-    }
+        //indirect = getIndexBlockNumber;
+        //return true;
+    //}
 
     public short findTargetBlock( int offset ) {
 
@@ -139,5 +139,71 @@ public class Inode {
         return SysLib.bytes2short( b, offset - directSize );
     }
 
+    // used to check SuperBlock.getFreeBlock( ) for index block
+    public boolean setIndexBlock( short index ) {
+        // check direct pointer
+        for ( int i = 0; i < directSize; i++ ) {
+            if ( direct[i] == -1 ) // not used
+                return false;
+        }
+
+        // check indirect pointer
+        if ( indirect != -1 ) // used
+            return false;
+
+        indirect = index; // assign value to indirect pointer
+        short defaultValue = -1;
+
+        byte[] blockData = new byte[512];
+        int cycles = 512/2; // 2 bytes for 1 short
+
+        // set defaultValue into block
+        for ( int i = 0; i < cycles; i++ ) {
+            SysLib.short2bytes( defaultValue, blockData, i*2 );
+        }
+
+        SysLib.rawwrite( indirect, blockData ); // write to disk
+
+        return true;
+    }
+
+    // used to check SuperBlock.getFreeBlock( )
+    public boolean setTargetBlock( int seekValue, short index ) {
+        int size = seekValue / 512; // potential pointer
+        if ( size < directSize ) {
+            if ( direct[size] == -1 ) { // pointer not used
+                // check for first pointer or if not, make sure
+                // previous pointer is already used
+                if ( ( size == 0 ) || ( ( size > 0 ) &&
+                        ( direct[size - 1] != -1 ) ) ) {
+                    direct[size] = index; // set the pointer
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        // check if index block not used
+        if ( indirect == -1 ) {
+            return false;
+        }
+
+        byte[] blockData = new byte[512];
+        // read index block from disk
+        SysLib.rawread( indirect, blockData );
+        int indirectNumber = size - directSize;
+        // check if index block
+        if ( SysLib.bytes2short( blockData, indirectNumber * 2 ) > 0 ) {
+            return false;
+        }
+
+        // copy the indirect number value
+        SysLib.short2bytes( index, blockData, indirectNumber * 2 );
+
+        // store this value to disk
+        SysLib.rawwrite( indirect, blockData );
+        return true;
+    }
 
 }

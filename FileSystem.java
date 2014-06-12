@@ -131,6 +131,81 @@ public class FileSystem {
     }
 
     int write(FileTableEntry ftEnt, byte[] buffer) {
+        // check if mode is read only
+        if ( ftEnt.mode.equals( "r" ) ) {
+            return -1;
+        }
+
+        int bytesWrite = 0;
+        int bytesRemain = buffer.length;
+
+        synchronized ( ftEnt ) {
+            while ( bytesRemain > 0 ) {
+                // get block to write to
+                int targetBlock = ftEnt.inode.findTargetBlock( ftEnt.seekPtr );
+
+                // targetBlock is not found
+                if ( targetBlock == -1 ) {
+                    // get free block
+                    int freeBlock = superblock.getFreeBlock( );
+
+                    boolean isTarget = ftEnt.inode.setTargetBlock(
+                            ftEnt.seekPtr, (short)freeBlock );
+
+                    // check if not target block
+                    if ( !isTarget ) {
+                        // check for index block
+                        short block = (short)superblock.getFreeBlock( );
+                        if ( !ftEnt.inode.setIndexBlock( block ) ) {
+                            return -1; // not index block, error
+                        }
+
+                        // recheck target block if index block ok
+                        if ( !ftEnt.inode.setTargetBlock( ftEnt.seekPtr,
+                                (short)freeBlock ) ) {
+                            return -1;
+                        }
+                    }
+
+                    targetBlock = freeBlock;
+                }
+
+                // array to store block data and write
+                byte[] blockData = new byte[512];
+                // read data if any from disk
+                SysLib.rawread( targetBlock, blockData );
+
+                // current seekPtr position
+                int currentPosition = ftEnt.seekPtr % 512;
+                // number of bytes remain in block
+                int spaceRemaining = 512 - currentPosition;
+                // get the smaller values for writing
+                int seekIncrease = Math.min( spaceRemaining, bytesRemain );
+
+                // get data from buffer
+                System.arraycopy( buffer, bytesWrite, blockData,
+                                  currentPosition, seekIncrease );
+
+                // write to disk
+                SysLib.rawwrite( targetBlock, blockData );
+
+                // increase seekPtr index for next loop
+                ftEnt.seekPtr += seekIncrease;
+                // increase number of bytes written
+                bytesWrite += seekIncrease;
+                // decrease number of bytes remained
+                bytesRemain -= seekIncrease;
+
+                // increase file size if necessary
+                if ( ftEnt.inode.length < ftEnt.seekPtr ) {
+                    ftEnt.inode.length = ftEnt.seekPtr;
+                }
+            }
+
+            ftEnt.inode.toDisk( ftEnt.iNumber ); // save inode to disk
+        }
+
+        return bytesWrite;
     }
 
     private boolean deallocAllBlocks( FileTableEntry ftEnt ) {
