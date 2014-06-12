@@ -1,3 +1,9 @@
+/**
+ * class SuperBlock
+ * intantiated by FileSystem at block 0.  Describes for the rest of the system
+ * the number of disk blocks, inodes, and the block number of the head block of
+ * the free list.  No other threads may access SuperBlock.
+ */
 import java.util.Arrays;
 
 public class SuperBlock {
