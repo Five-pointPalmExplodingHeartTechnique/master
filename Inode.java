@@ -1,4 +1,9 @@
-
+/**
+ * class Inode
+ * represents one file in the FileSystem
+ * holds the longth of its file, the number of table entries that point to this node,
+ * and a flag that indicates whether it's been used (0-1) or some other status (2, 3, 4..)
+ */
 public class Inode {
 
     private final static int iNodeSize  = 32;      // fix to 32 bytes
