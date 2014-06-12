@@ -1,6 +1,8 @@
 /**
  * class TCB
- * @author Ryan Aarestad
+ * @brief contains parent- and thread- ID for a thread, as well as maintains a 
+ * history of that thread's file system operations in an array of 
+ * FileTableEntry objects'
  */
 
 public class TCB {
