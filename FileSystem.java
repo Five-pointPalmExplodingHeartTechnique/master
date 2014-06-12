@@ -1,4 +1,9 @@
-
+/**
+ * @class FileSystem
+ * comprises the file storage system for an Operating System.  Holds a
+ * Superblock, a Directory, and a Filetable, as well as methods for 
+ * basic file operations
+ */
 public class FileSystem {
     private final int SEEK_SET = 0;
     private final int SEEK_CUR = 1;
