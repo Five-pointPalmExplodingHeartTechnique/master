@@ -87,7 +87,47 @@ public class FileSystem {
         }
     }
 
+    //Read from FileTableEntry into buffer
     int read(FileTableEntry ftEnt, byte[] buffer) {
+        //If the file is writing or appending, don't return file
+        if(ftEnt.mode.equals("w") || ftEnt.mode.equals("a")) {
+            return -1;
+        }
+
+        int bytesRead = 0;
+        int fileSize = fsize(ftEnt);
+
+        synchronized (ftEnt) {
+            while(ftEnt.seekPtr < fileSize) {
+                //Get block to read from
+                int targetBlock = ftEnt.inode.findTargetBlock(ftEnt.seekPtr);
+                //If block isn't positive, break from loop
+                if(targetBlock < 0) {
+                    break;
+                }
+
+                //Array to store block data and read
+                byte[] blockData = new byte[512];
+                SysLib.rawread(targetBlock,blockData);
+
+                //Determine how many bytes were read based on the seek index
+                int currentRead = 512 - (ftEnt.seekPtr % 512);
+                //Calculate if there are bytes remaining
+                int remainingBytesToRead = fileSize - ftEnt.seekPtr;
+                //Move the seek to the minimum of the number read or remaining
+                //If read was 512 than remaining must be larger
+                int seekIncrease = Math.min(currentRead,remainingBytesToRead);
+
+                //copy into buffer
+                System.arraycopy(blockData,ftEnt.seekPtr % 512,buffer,bytesRead,seekIncrease);
+
+                //Increase seek index for next loop
+                ftEnt.seekPtr += seekIncrease;
+                //Increase bytesRead for next loop to start copying into buffer
+                bytesRead += seekIncrease;
+            }
+        }
+        return bytesRead;
     }
 
     int write(FileTableEntry ftEnt, byte[] buffer) {
