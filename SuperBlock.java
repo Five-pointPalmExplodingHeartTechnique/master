@@ -80,7 +80,7 @@ public class SuperBlock {
         SysLib.int2bytes(freeList,toDisk,8);
         //Write back to the 0 block on disk
         SysLib.rawwrite(0,toDisk);
-        SysLib.cout("Superblock Synchronized");
+        SysLib.cout("Superblock Synchronized\n");
 	}
 
     //get next available block from top of the list
