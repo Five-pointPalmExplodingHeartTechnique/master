@@ -118,6 +118,10 @@ public class FileSystem {
                 //If read was 512 than remaining must be larger
                 int seekIncrease = Math.min(currentRead,remainingBytesToRead);
 
+                if(buffer.length - bytesRead < seekIncrease) {
+                    seekIncrease = buffer.length - bytesRead;
+                }
+
                 //copy into buffer
                 System.arraycopy(blockData,ftEnt.seekPtr % 512,buffer,bytesRead,seekIncrease);
 
