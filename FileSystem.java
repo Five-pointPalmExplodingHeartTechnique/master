@@ -1,8 +1,10 @@
 /**
- * @class FileSystem
+ * FileSystem.java
  * comprises the file storage system for an Operating System.  Holds a
  * Superblock, a Directory, and a Filetable, as well as methods for 
  * basic file operations
+ * 
+ * @since   6/5/2014
  */
 public class FileSystem {
     private final int SEEK_SET = 0;
@@ -13,6 +15,13 @@ public class FileSystem {
     private Directory directory;
     private FileTable filetable;
 
+    /**
+     * constructor
+     * initiate the file system based on given number of disk blocks
+     * 
+     * @param diskBlocks the number of disk blocks
+     * 
+     */
     public FileSystem(int diskBlocks) {
         // create superblock, and format disk with 64 inodes in default
         superblock = new SuperBlock(diskBlocks);
@@ -34,7 +43,11 @@ public class FileSystem {
         close(dirEnt);
     }
 
-    //To sync the FileSystem we need tp get the directories and write to root
+    /**
+     * sync
+     * sync the FileSystem by getting the directories and write to root
+     * 
+     */    
     void sync() {
         //Get the entry of root
         FileTableEntry rootDir = open("/", "w");
@@ -47,7 +60,13 @@ public class FileSystem {
         superblock.sync();
     }
 
-    //Format the FileSystem to support files of number in parameter
+    /**
+     * format
+     * return a clean file system
+     * 
+     * @param files the number of files for the system
+     * 
+     */ 
     boolean format(int files) {
         //superblock formats
         superblock.format(files);
@@ -58,7 +77,14 @@ public class FileSystem {
         return true;
     }
 
-    //Get the file table entry for the filename
+    /**
+     * open
+     * Get the file table entry for the filename
+     * 
+     * @param filename the file name
+     * @param mode the file access mode
+     * 
+     */     
     FileTableEntry open(String filename, String mode) {
         FileTableEntry fte = filetable.falloc(filename, mode);
         if (mode.equals("w")) {
@@ -69,7 +95,13 @@ public class FileSystem {
         return fte;
     }
 
-    //Close file
+    /**
+     * close
+     * close a given file
+     * 
+     * @param ftEnt the file table entry
+     * 
+     */    
     boolean close(FileTableEntry ftEnt) {
         //Synchronized to avoid simutaneous on one file
         synchronized (ftEnt) {
@@ -85,14 +117,27 @@ public class FileSystem {
         }
     }
 
-    //Return size of the file which is size of inode
+    /**
+     * fsize
+     * return the size of a file
+     * 
+     * @param ftEnt the file table entry
+     * 
+     */   
     int fsize(FileTableEntry ftEnt) {
         synchronized (ftEnt) {
             return ftEnt.inode.length;
         }
     }
 
-    //Read from FileTableEntry into buffer
+    /**
+     * read
+     * Read from FileTableEntry into buffer
+     * 
+     * @param ftEnt the file table entry
+     * @param buffer the data from disk
+     * 
+     */     
     int read(FileTableEntry ftEnt, byte[] buffer) {
         //If the file is writing or appending, don't return file
         if(ftEnt.mode.equals("w") || ftEnt.mode.equals("a")) {
@@ -147,6 +192,14 @@ public class FileSystem {
         return bytesRead;
     }
 
+    /**
+     * write
+     * write to FileTableEntry from buffer
+     * 
+     * @param ftEnt the file table entry
+     * @param buffer the data to write
+     * 
+     */   
     int write(FileTableEntry ftEnt, byte[] buffer) {
         // check if mode is read only
         if ( ftEnt.mode.equals( "r" ) ) {
@@ -225,6 +278,13 @@ public class FileSystem {
         return bytesWrite;
     }
 
+    /**
+     * deallocaAllBlocks
+     * free the blocks from a given file
+     * 
+     * @param ftEnt the file table entry
+     * 
+     */   
     private boolean deallocAllBlocks( FileTableEntry ftEnt ) {
         // Retrieve inode from file table entry. If inode is null, return false.
         Inode inode = ftEnt.inode;
@@ -267,7 +327,13 @@ public class FileSystem {
         return true;
     }
 
-    // Delete a file. Release the corresponding file table entry from directory
+    /**
+     * delete
+     * Delete a file. Release the corresponding file table entry from directory
+     * 
+     * @param filename the given file name
+     * 
+     */       
     boolean delete( String filename ) {
         // If given file name is empty, return false.
         if(filename.isEmpty()) return false;
@@ -279,7 +345,15 @@ public class FileSystem {
         return directory.ifree(iNumber);
     }
 
-
+    /**
+     * seek
+     * update the seekpointer of a file
+     * 
+     * @param ftEnt the FileTableEntry
+     * @param offset offset value
+     * @param whence where to begin
+     * 
+     */  
     int seek( FileTableEntry ftEnt, int offset, int whence ) {
         synchronized (ftEnt){
             // Size of the current file
