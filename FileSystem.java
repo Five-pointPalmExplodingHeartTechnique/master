@@ -118,6 +118,7 @@ public class FileSystem {
                 //If read was 512 than remaining must be larger
                 int seekIncrease = Math.min(currentRead,remainingBytesToRead);
 
+                //Bugfix, if buffer doesn't have enough space for remaining reading
                 if(buffer.length - bytesRead < seekIncrease) {
                     seekIncrease = buffer.length - bytesRead;
                 }
