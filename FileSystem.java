@@ -98,7 +98,8 @@ public class FileSystem {
         int fileSize = fsize(ftEnt);
 
         synchronized (ftEnt) {
-            while(bytesRead < fileSize) {
+            //Added check for bytes read is less than buffer length for appending
+            while(ftEnt.seekPtr < fileSize && bytesRead < buffer.length) {
                 //Get block to read from
                 int targetBlock = ftEnt.inode.findTargetBlock(ftEnt.seekPtr);
                 //If block isn't positive, break from loop
@@ -110,6 +111,8 @@ public class FileSystem {
                 byte[] blockData = new byte[512];
                 SysLib.rawread(targetBlock,blockData);
 
+
+
                 //Determine how many bytes were read based on the seek index
                 int currentRead = 512 - (ftEnt.seekPtr % 512);
                 //Calculate if there are bytes remaining
@@ -118,13 +121,17 @@ public class FileSystem {
                 //If read was 512 than remaining must be larger
                 int seekIncrease = Math.min(currentRead,remainingBytesToRead);
 
+                //SysLib.cout("Bytes Read: " + bytesRead + " and Pointer at: " + ftEnt.seekPtr + " and file size: " + fileSize + " and Buffer size: " + buffer.length +  "\n");
+
                 //Bugfix, if buffer doesn't have enough space for remaining reading
+
                 if(buffer.length - bytesRead < seekIncrease) {
                     seekIncrease = buffer.length - bytesRead;
                 }
 
                 //copy into buffer
                 System.arraycopy(blockData,ftEnt.seekPtr % 512,buffer,bytesRead,seekIncrease);
+                //SysLib.cout("Increase seek by: " + seekIncrease + "\n");
 
                 //Increase seek index for next loop
                 ftEnt.seekPtr += seekIncrease;
