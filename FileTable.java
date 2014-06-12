@@ -1,4 +1,10 @@
-
+/**
+ * FileTable.java
+ * File table consists vector to store all the file table entries 
+ * and directory folder.
+ *
+ * @since    6/5/2014 
+ */
 import java.util.Vector;
 
 public class FileTable {
@@ -6,12 +12,26 @@ public class FileTable {
     private Vector table;            // the actual entity of this file table
     private Directory dir;            // the root directory
 
+    /**
+     * constructor
+     * initiate the FileTable
+     * 
+     * @param directory the Directory structure for this file table
+     * 
+     */
     public FileTable(Directory directory) { // constructor
         table = new Vector();        // instantiate a file (structure) table
         dir = directory;                // receive a reference to the Director
     }                                // from the file system
 
-    // major public methods
+    /**
+     * falloc
+     * allocate a new file table entry for this file name
+     * 
+     * @param filename the filename to allocate
+     * @param mode the access mode of the file
+     * 
+     */
     public synchronized FileTableEntry falloc(String filename, String mode) {
 
         short iNumber = -1;
@@ -39,6 +59,13 @@ public class FileTable {
         return reference;
     }
 
+    /**
+     * ffree
+     * free the given file table entry from the structure 
+     * 
+     * @param e the file table entry to free
+     * 
+     */
     public synchronized boolean ffree(FileTableEntry e) {
         if (e == null) return false;
 
@@ -57,6 +84,11 @@ public class FileTable {
         return false;
     }
 
+    /**
+     * fempty
+     * return true if the file table is empty
+     * 
+     */
     public synchronized boolean fempty() {
         return table.isEmpty();
     }
